@@ -1,0 +1,161 @@
+# layerdrop-app
+LAYERDROP Official Online &amp; Offline Store
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#090909">
+<title>LAYERDROP | Luxury in Every Layer</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#090909;color:#fff;font-family:Arial,sans-serif}
+header{padding:20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #333}
+.logo{font-size:25px;font-weight:900;letter-spacing:3px}
+.gold{color:#c9a45c}
+button{cursor:pointer;border:0}
+.hero{text-align:center;padding:65px 20px;background:linear-gradient(140deg,#252525,#080808 65%)}
+.hero h1{font-size:38px;letter-spacing:3px;margin-bottom:15px}
+.hero p{color:#bbb;margin-bottom:25px}
+.btn{background:#c9a45c;color:#111;padding:14px 24px;font-weight:bold;border-radius:3px}
+section{padding:30px 18px}
+h2{font-size:23px;margin-bottom:20px}
+.products{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.product{background:#171717;border:1px solid #292929;border-radius:7px;overflow:hidden}
+.product-img{height:160px;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#333,#111);font-size:65px}
+.product-info{padding:13px}
+.product h3{font-size:15px;margin-bottom:8px}
+.price{color:#d7b56e;font-weight:bold;margin-bottom:12px}
+.product select{width:100%;padding:9px;background:#292929;color:white;border:1px solid #555;margin-bottom:9px}
+.add{width:100%;padding:11px;background:#c9a45c;color:#111;font-weight:bold}
+.cart{background:#171717;margin:15px;padding:18px;border-radius:7px}
+.cart-item{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #333}
+.cart button{padding:7px;background:#333;color:white}
+.total{margin:18px 0;font-size:18px}
+.checkout{width:100%;padding:14px;background:#c9a45c;font-weight:bold}
+.about{text-align:center;background:#151515;padding:35px 22px;line-height:1.8;color:#bbb}
+footer{text-align:center;padding:25px;color:#888;font-size:12px}
+</style>
+</head>
+<body>
+
+<header>
+<div class="logo">LAYER<span class="gold">DROP</span></div>
+<div onclick="showCart()" style="cursor:pointer">🛒 Cart (<span id="count">0</span>)</div>
+</header>
+
+<div class="hero">
+<p class="gold">WELCOME TO LAYERDROP</p>
+<h1>Luxury in<br>Every Layer.</h1>
+<p>Premium Streetwear. Timeless Style.</p>
+<button class="btn" onclick="document.getElementById('shop').scrollIntoView()">SHOP NOW</button>
+</div>
+
+<section id="shop">
+<h2>Featured <span class="gold">Collection</span></h2>
+<div class="products" id="products"></div>
+</section>
+
+<section id="cart">
+<h2>Your <span class="gold">Shopping Cart</span></h2>
+<div class="cart">
+<div id="items">Your cart is empty.</div>
+<div class="total">Total: <span class="gold">Rs. <span id="total">0</span></span></div>
+<button class="checkout" onclick="checkout()">ORDER ON WHATSAPP</button>
+</div>
+</section>
+
+<div class="about">
+<h2>ABOUT <span class="gold">LAYERDROP</span></h2>
+Luxury in Every Layer.<br>
+Premium streetwear made for everyday confidence.<br>
+Timeless Fits | Premium Quality
+</div>
+
+<footer>
+© 2026 LAYERDROP. All Rights Reserved.
+</footer>
+
+<script>
+const products=[
+{id:1,name:"Black Oversized Hoodie",price:2500,icon:"🖤"},
+{id:2,name:"White Oversized Hoodie",price:2500,icon:"🤍"},
+{id:3,name:"Premium Tracksuit",price:4500,icon:"👕"},
+{id:4,name:"Classic T-Shirt",price:1200,icon:"👔"}
+];
+
+let cart=JSON.parse(localStorage.getItem("layerdropCart")||"[]");
+
+function save(){
+localStorage.setItem("layerdropCart",JSON.stringify(cart));
+renderCart();
+}
+
+function renderProducts(){
+document.getElementById("products").innerHTML=products.map(p=>`
+<div class="product">
+<div class="product-img">${p.icon}</div>
+<div class="product-info">
+<h3>${p.name}</h3>
+<div class="price">Rs. ${p.price.toLocaleString()}</div>
+<select id="size${p.id}">
+<option value="S">Size S</option>
+<option value="M" selected>Size M</option>
+<option value="L">Size L</option>
+<option value="XL">Size XL</option>
+</select>
+<button class="add" onclick="add(${p.id})">ADD TO CART</button>
+</div>
+</div>`).join("");
+}
+
+function add(id){
+let p=products.find(x=>x.id===id);
+let size=document.getElementById("size"+id).value;
+cart.push({...p,size});
+save();
+alert("Added to your cart!");
+}
+
+function removeItem(i){
+cart.splice(i,1);
+save();
+}
+
+function renderCart(){
+document.getElementById("count").textContent=cart.length;
+document.getElementById("total").textContent=cart.reduce((s,p)=>s+p.price,0).toLocaleString();
+document.getElementById("items").innerHTML=cart.length?
+cart.map((p,i)=>`
+<div class="cart-item">
+<div>${p.name}<br><small>Size: ${p.size} | Rs. ${p.price}</small></div>
+<button onclick="removeItem(${i})">Remove</button>
+</div>`).join(""):"Your cart is empty.";
+}
+
+function showCart(){
+document.getElementById("cart").scrollIntoView({behavior:"smooth"});
+}
+
+function checkout(){
+if(!cart.length){alert("Your cart is empty!");return;}
+let message="Hello LAYERDROP! I want to place an order:%0A";
+cart.forEach(p=>{
+message+=`%0A${p.name} - Size ${p.size} - Rs.${p.price}`;
+});
+message+=`%0A%0ATotal: Rs.${cart.reduce((s,p)=>s+p.price,0)}`;
+let phone="92XXXXXXXXXX";
+if(phone.includes("X")){
+alert("WhatsApp number abhi set nahi hua. Code mein apna business number add karein.");
+return;
+}
+window.open("https://wa.me/"+phone+"?text="+message,"_blank");
+}
+
+renderProducts();
+renderCart();
+</script>
+</body>
+</html>
+       
